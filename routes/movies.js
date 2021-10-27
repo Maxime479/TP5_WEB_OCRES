@@ -1,26 +1,62 @@
 const express = require('express')
+const router = express.Router();
+
 
 // Lodash utils library
 const _ = require('lodash');
 
-const router = express.Router();
+//Axios Library
+const axios = require('axios').default;
+
+const instance = axios.create({
+    baseURL: 'http://www.omdbapi.com/?t=inception&apikey=322d7f6f',
+    method: 'get',
+    timeout: 1000,
+
+    transformRequest: [function (data, headers) {
+        // Do whatever you want to transform the data
+
+        return data;
+    }],
+
+    // `transformResponse` allows changes to the response data to be made before
+    // it is passed to then/catch
+    transformResponse: [function (data) {
+        // Do whatever you want to transform the data
+
+        return data;
+    }],
+
+    headers: {'X-Custom-Header': 'foobar'}
+});
+
+
+
+
+
 
 
 let movies = [{
     id: "1",
-        movie: "Free Guy",
+    movie: "Free Guy",
+    yearOfRelease: 2021,
+    duration: 115, // en minutes,
+    actors: ["Ryan Reynolds", "Jodie Comer"],
+    poster: "https://m.media-amazon.com/images/M/MV5BOTY2NzFjODctOWUzMC00MGZhLTlhNjMtM2Y2ODBiNGY1ZWRiXkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_FMjpg_UX1000_.jpg", // lien vers une image d'affiche,
+    boxOffice: 302400000, // en USD$,
+    rottenTomatoesScore: 80
 },
 {
     id: "2",
-        movie: "Fight Club",
+    movie: "Fight Club",
 },
 {
     id: "3",
-        movie: "Le Loup de Wall Street",
+    movie: "Le Loup de Wall Street",
 },
 {
     id: "4",
-        movie: "Jumanji",
+    movie: "Jumanji",
 },
 ]
 
@@ -33,7 +69,7 @@ router.get('/', (req, res) => {
 // GET localhost:3000/movies/:id -- Affiche un film via son id
 router.get('/:id', (req, res) => {
     const {id} = req.params;
-    const movie =_.find(['id', id]);
+    const movie = _.find(movies, ["id", id]);
 
     res.status(200).json({
         message: 'Film found!',
@@ -42,16 +78,16 @@ router.get('/:id', (req, res) => {
 });
 
 
-// PUT localhost:3000/movies/ -- Ajoute un film via son nom
-router.put('/',  (req, res) => {
-    const {movie} = req.body;
-    const id = _.uniqueId();
+// PUT localhost:3000/movies/ -- A  joute un film via son nom
+router.put('/', (req, res) => {
+    const { movie } = req.body;
+    const id = _.uniqueId('0');
 
     movies.push({id, movie});
 
     res.json({
-        message: `Movie ${id} added to BDD!`,
-        movie: {id, movie}
+        message: `Movie ${movie} added to BDD!`,
+        movie: { id, movie }
     });
 });
 
