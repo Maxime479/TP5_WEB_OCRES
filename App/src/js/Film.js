@@ -38,7 +38,11 @@ export default class Film extends React.Component{
         let hours = Math.floor(time /60);
         let minutes = time % 60
 
-        return hours + "h" + minutes
+        if(minutes<10){
+            return hours + "h0" + minutes
+        }else{
+            return hours + "h" + minutes
+        }
     }
 
     showMoney = (money) => {
