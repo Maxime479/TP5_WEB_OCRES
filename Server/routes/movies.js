@@ -8,27 +8,6 @@ const _ = require('lodash');
 //Axios Library
 const axios = require('axios').default;
 
-const instance = axios.create({
-    baseURL: 'http://www.omdbapi.com/?t=inception&apikey=322d7f6f',
-    method: 'get',
-    timeout: 1000,
-
-    transformRequest: [function (data, headers) {
-        // Do whatever you want to transform the data
-
-        return data;
-    }],
-
-    // `transformResponse` allows changes to the response data to be made before
-    // it is passed to then/catch
-    transformResponse: [function (data) {
-        // Do whatever you want to transform the data
-
-        return data;
-    }],
-
-    headers: {'X-Custom-Header': 'foobar'}
-});
 
 
 let movies = [
@@ -41,8 +20,7 @@ let movies = [
         poster: "https://images-na.ssl-images-amazon.com/images/S/pv-target-images/fee52e38b0f738762bd6172085da2291da3cf72b755f9b413e4fc3aa2e3c0bae._RI_V_TTW_.jpg", // lien vers une image d'affiche,
         boxOffice: 302400000, // en USD$,
         rottenTomatoesScore: 80,
-    },
-    {
+    },{
         id: "2",
         movie: "Fight Club",
         yearOfRelease: 1999,
@@ -51,8 +29,7 @@ let movies = [
         poster: "https://images-na.ssl-images-amazon.com/images/S/pv-target-images/d1dd8c0c5a5fcee2c9b60387fdd548700048134a8f9b395d1d225a0c97d4a25c._RI_V_TTW_.jpg",
         boxOffice: 101200000,
         rottenTomatoesScore: 79,
-    },
-    {
+    },{
         id: "3",
         movie: "Le Loup de Wall Street",
         yearOfRelease: 2013,
@@ -61,8 +38,7 @@ let movies = [
         poster: "https://images-na.ssl-images-amazon.com/images/S/pv-target-images/cb70325a0ae619c0b429151c6e34792d4821303ea39475a2baf912ba340b2b4a._RI_V_TTW_.jpg",
         boxOffice: 392000000,
         rottenTomatoesScore: 79,
-    },
-    {
+    },{
         id: "4",
         movie: "Jumanji",
         yearOfRelease: 2019,
@@ -71,8 +47,215 @@ let movies = [
         poster: "https://images-na.ssl-images-amazon.com/images/S/pv-target-images/f641bbf64201e9f10cc871b16b6c752e60acd675b281d90efa4fec6646b69b11._RI_V_TTW_.jpg",
         boxOffice: 800100000,
         rottenTomatoesScore: 71,
+    },{
+        id: "5",
+        movie: "Joker",
+        yearOfRelease: 0,
+        duration: 0,
+        actors: ["", "", ""],
+        poster: "",
+        boxOffice: 0,
+        rottenTomatoesScore: 0,
     },
 ]
+
+
+
+function getDatas(movieName, id){
+    let URL = 'http://www.omdbapi.com/?t=' + movieName + '&apikey=322d7f6f';
+
+    var axiosData = {};
+
+
+    let config = {
+        method: 'get',
+        url: URL,
+        headers: {
+            'apikey': '322d7f6f'
+        }
+    };
+
+
+    axios(config)
+        .then(function (response) {
+            // console.log("--------JSON--------");
+            // // console.log(JSON.stringify(response.data));
+            // console.log(response.data);
+            // console.log("--------JSON--------");
+
+            axiosData = response.data;
+
+            addMovieInfos(movieName, id, response.data);
+
+
+
+            // axiosData.push(response.data);
+            console.log("--------BEFORE--------");
+            console.log(axiosData);
+            console.log("--------BEFORE--------");
+
+            // datas = response.data;
+            // return datas;
+        })
+        // .then(data => {
+        //     console.log("--------VA--------");
+        //     console.log(data.data);
+        //     console.log("--------VA--------");
+        //
+        //     // datas.push(data.data);
+        // })
+        // .catch(function (error) {
+        //     console.log(error);
+        //     // this.datas =  '#ERROR#';
+        // });
+
+    console.log("--------AFTER--------");
+    console.log(axiosData);
+    console.log("--------AFTER--------");
+    return axiosData;
+
+}
+
+function addMovieInfos(movieName, id, datas){
+
+    // let datas = getDatas(movieName);
+    // let datas = axiosData;
+
+    // console.log("________movieName__________");
+    // console.log(movieName);
+    // console.log("________id__________");
+    // console.log(id);
+    console.log("________datas__________");
+    console.log(datas);
+    console.log("________datas__________");
+
+    const movieToUpdate = _.find(movies, ["id", id]);
+
+    let adjustBoxOffice = datas.BoxOffice;
+    adjustBoxOffice = adjustBoxOffice.replace(",", "");
+    adjustBoxOffice = adjustBoxOffice.replace(",", "");
+    let adjustTomatoesScore = datas.Ratings[1].Value;
+    let adjustActors = datas.Actors;
+
+
+    let firstComma = adjustActors.indexOf(",");
+    let secondComma = adjustActors.indexOf(",", firstComma+1);
+
+    let actorsList = [];
+
+
+    // console.log("________Comma__________");
+    // console.log(firstComma);
+    // console.log(secondComma);
+    // console.log("________Comma__________");
+
+    actorsList.push(adjustActors.slice(0, firstComma-1))
+    actorsList.push(adjustActors.slice(firstComma+2, secondComma-1))
+    actorsList.push(adjustActors.slice(secondComma+2, adjustActors.length))
+
+
+    movieToUpdate.movie = datas.Title;
+
+    movieToUpdate.yearOfRelease = parseInt(datas.Year);
+    movieToUpdate.duration = parseInt(datas.Runtime);
+
+    movieToUpdate.actors = actorsList;
+    movieToUpdate.poster = datas.Poster;
+    movieToUpdate.boxOffice = parseInt(adjustBoxOffice.slice(1, adjustBoxOffice.length));
+    movieToUpdate.rottenTomatoesScore = parseInt(adjustTomatoesScore);
+
+}
+
+
+
+let innitDone = false;
+function idInnit(){
+    if (innitDone===false){
+        for(let i=0; i<movies.length; i++){
+            const id = _.uniqueId();
+        }
+        innitDone=true;
+    }
+}
+
+
+
+
+
+
+// const getBreeds = async () => {
+//     try {
+//         return await axios.get('https://dog.ceo/api/breeds/list/all')
+//             } catch (error) {
+//         console.error(error)
+//     }
+// }
+//
+//
+// const countBreeds = async () => {
+//     const breeds = await getBreeds()
+//
+//
+//     if (breeds.data.message) {
+//         // console.log(Got </span><span style="color:#e6db74">${</span>Object.<span style="color:#a6e22e">entries</span>(<span style="color:#a6e22e">breeds</span>.<span style="color:#a6e22e">data</span>.<span style="color:#a6e22e">message</span>).<span style="color:#a6e22e">length</span><span style="color:#e6db74">}</span><span style="color:#e6db74"> breeds)
+//         console.log("________________________")
+//         console.log("Got it !")
+//         console.log("________________________")
+// }
+// }
+//
+//
+// countBreeds()
+
+
+// axios({
+//     url: 'https://dog.ceo/api/breeds/list/all',
+//     method: 'get',
+//     data: {
+//         foo: 'bar'
+//     }
+// })
+
+
+// new Vue({
+//     el: '#app',
+//     data () {
+//         return {
+//             info: null
+//         }
+//     },
+//     mounted () {
+//         axios
+//             .get('https://api.coindesk.com/v1/bpi/currentprice.json')
+//             .then(response => (this.info = response))
+//     }
+// })
+
+
+
+
+// axios.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
+//     .then(response => {
+//
+//         ress = response.data;
+//
+//         // console.log(response.data.url);
+//         // console.log(response.data.explanation);
+//     })
+//     .catch(error => {
+//         console.log(error);
+// });
+//
+//
+// let maj = function (){
+//     if(ress !== null){
+//         movies[5].movie = ress;
+//     }
+// }
+
+
+
+
 
 // GET localhost:3000/movies -- Affiche tout les films
 router.get('/', (req, res) => {
@@ -92,10 +275,54 @@ router.get('/:id', (req, res) => {
 });
 
 
-// PUT localhost:3000/movies/ -- A  joute un film via son nom
+// POST localhost:3000/movies/axios/:movieName Add Movie and infos with uniqueId with AXIOS
+router.post('/axios/', (req, res) => {
+    const {movieName} = req.body;
+    let findMovie = _.find(movies, ["movie", movieName]);
+
+    let newMovie;
+
+    console.log("________movieName__________");
+    console.log(movieName);
+    console.log("________findMovie__________");
+    console.log(findMovie);
+    // console.log("________datas__________");
+    // console.log(datas);
+    console.log("__________________");
+
+
+    if(findMovie !== undefined){
+
+
+        // addMovieInfos(findMovie.movie, findMovie.id);
+        getDatas(findMovie.movie, findMovie.id);
+
+        newMovie = _.find(movies, ["movie", movieName]);
+    }else{
+        idInnit();
+        const id = _.uniqueId();
+        movies.push({id: id, movie: movieName});
+        // addMovieInfos(movieName, id);
+        getDatas(movieName, id);
+
+        newMovie = _.find(movies, ["id", id]);
+    }
+
+    // newMovie = _.find(movies, ["id", findMovie.id]);
+
+    res.status(200).json({
+        message: `Film ${movieName} added to bdd with axios`,
+        newMovie
+    });
+});
+
+
+
+// PUT localhost:3000/movies/ -- Ajoute un film via son nom
 router.put('/', (req, res) => {
     const { movie } = req.body;
-    const id = _.uniqueId('0');
+    idInnit();
+    const id = _.uniqueId();
 
     movies.push({id, movie});
 
@@ -106,16 +333,18 @@ router.put('/', (req, res) => {
 });
 
 
-// POST localhost:3000/movies/:id -- Update un film via son id
+// POST localhost:3000/movies/:id -- Update le nom d'un film via son id
 router.post('/:id', (req, res) => {
     const {id} = req.params;
     const {movie} = req.body;
     const movieToUpdate = _.find(movies, ["id", id]);
 
+    // movieToUpdate.movie = movie;
     movieToUpdate.movie = movie;
 
     res.json({
-        message: `Movie's name, with id (${id}), updated to ${movie}`
+        message: `Movie's name, with id (${id}), updated to ${movie}`,
+        movie
     });
 
 });
@@ -129,7 +358,7 @@ router.delete('/:id', (req, res) => {
     _.remove(movies, ["id", id]);
 
     res.json({
-        message: `Movie ${movie} deleted successfully`
+        message: `Movie ${movie.movie} deleted successfully`
     });
 });
 
