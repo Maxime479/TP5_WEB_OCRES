@@ -13,7 +13,9 @@ export default class Film extends React.Component{
     showActors = (actors) => {
 
         let i = 1;
-        const length  = actors.length;
+        let arra = []
+        arra = actors;
+        const len = arra.length;
 
         let stringActors = actors.toString();
 
@@ -23,7 +25,7 @@ export default class Film extends React.Component{
 
         return actors.map((act) => {
 
-            if (i !== length) {
+            if (i !== len) {
                 i++;
                 return <span>{act}, </span>
 
@@ -38,11 +40,9 @@ export default class Film extends React.Component{
         let hours = Math.floor(time /60);
         let minutes = time % 60
 
-        if(minutes<10){
-            return hours + "h0" + minutes
-        }else{
+        if(minutes)
+
             return hours + "h" + minutes
-        }
     }
 
     showMoney = (money) => {

@@ -3,6 +3,12 @@ import Film from "./Film";
 
 export default class ListeFilms extends React.Component{
 
+    componentDidUpdate(prevProps) {
+        if (this.props.id !== prevProps.id) {
+            this.setDefaultTranslation(this.props.context)
+        }
+    }
+
     render() {
 
         var filmList = [];
@@ -27,7 +33,16 @@ export default class ListeFilms extends React.Component{
         }else{
             console.log("LOADED");
 
+            let i= 0;
+
             for(let movieIndex=0; movieIndex<extractData.length; movieIndex++){
+
+                console.log("_____LISTE______");
+                i++;
+                console.log(i);
+                console.log(extractData[movieIndex]);
+                console.log("_____LISTE______");
+
                 filmList.push(
                     <Film
                         caller={extractData[movieIndex]}
@@ -42,6 +57,10 @@ export default class ListeFilms extends React.Component{
                 <div className="listeFilms">
 
                     {filmList}
+
+                    {/*<Film*/}
+                    {/*    caller={extractData[2]}*/}
+                    {/*/>*/}
 
 
                 </div>
