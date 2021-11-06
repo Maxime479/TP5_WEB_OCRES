@@ -50,18 +50,54 @@ let movies = [
     },{
         id: "5",
         movie: "Joker",
-        yearOfRelease: 0,
-        duration: 0,
-        actors: ["", "", ""],
-        poster: "",
-        boxOffice: 0,
-        rottenTomatoesScore: 0,
+        yearOfRelease: 2019,
+        duration: 122,
+        actors: [
+            "Joaquin Phoeni",
+            "Robert De Nir",
+            "Zazie Beetz"
+        ],
+        poster: "https://m.media-amazon.com/images/M/MV5BNGVjNWI4ZGUtNzE0MS00YTJmLWE0ZDctN2ZiYTk2YmI3NTYyXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_SX300.jpg",
+        boxOffice: 335451311,
+        rottenTomatoesScore: 68
     },
+    {
+        id: "6",
+        movie: "Avatar",
+        yearOfRelease: 2009,
+        duration: 162,
+        actors: [
+            "Sam Worthingto",
+            "Zoe Saldan",
+            "Sigourney Weaver"
+        ],
+        poster: "https://m.media-amazon.com/images/M/MV5BMTYwOTEwNjAzMl5BMl5BanBnXkFtZTcwODc5MTUwMw@@._V1_SX300.jpg",
+        boxOffice: 760507625,
+        rottenTomatoesScore: 81
+    },
+    {
+        id: "7",
+        movie: "Titanic",
+        yearOfRelease: 1997,
+        duration: 194,
+        actors: [
+            "Leonardo DiCapri",
+            "Kate Winsle",
+            "Billy Zane"
+        ],
+        poster: "https://m.media-amazon.com/images/M/MV5BMDdmZGU3NDQtY2E5My00ZTliLWIzOTUtMTY4ZGI1YjdiNjk3XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_SX300.jpg",
+        boxOffice: 659363944,
+        rottenTomatoesScore: 89
+    }
 ]
 
 
+// function movieFound(data){
+//
+// }
 
-function getDatas(movieName, id){
+
+function getDatas(movieName, id, newMovie){
     let URL = 'http://www.omdbapi.com/?t=' + movieName + '&apikey=322d7f6f';
 
     var axiosData = {};
@@ -76,6 +112,7 @@ function getDatas(movieName, id){
     };
 
 
+
     axios(config)
         .then(function (response) {
             // console.log("--------JSON--------");
@@ -85,17 +122,33 @@ function getDatas(movieName, id){
 
             axiosData = response.data;
 
-            addMovieInfos(movieName, id, response.data);
+            const res = axiosData.Response;
 
 
 
-            // axiosData.push(response.data);
-            console.log("--------BEFORE--------");
-            console.log(axiosData);
-            console.log("--------BEFORE--------");
 
-            // datas = response.data;
-            // return datas;
+            if(res.includes('False')){
+                console.log("--------ERROR--------");
+                console.log("Film Not Found");
+                console.log(axiosData);
+                console.log("--------ERROR--------");
+
+                movies.splice(movies.length-1, 1)
+
+            }else{
+                console.log("--------SUCCESS--------");
+                console.log("Film Found");
+                console.log(axiosData);
+                console.log("--------SUCCESS--------");
+
+                if(newMovie){
+                    movies.push({id: id, movie: movieName});
+                }
+
+                addMovieInfos(movieName, id, axiosData);
+            }
+
+
         })
         // .then(data => {
         //     console.log("--------VA--------");
@@ -109,10 +162,10 @@ function getDatas(movieName, id){
         //     // this.datas =  '#ERROR#';
         // });
 
-    console.log("--------AFTER--------");
-    console.log(axiosData);
-    console.log("--------AFTER--------");
-    return axiosData;
+    // console.log("--------AFTER--------");
+    // console.log(axiosData);
+    // console.log("--------AFTER--------");
+    // return axiosData;
 
 }
 
@@ -149,8 +202,8 @@ function addMovieInfos(movieName, id, datas){
     // console.log(secondComma);
     // console.log("________Comma__________");
 
-    actorsList.push(adjustActors.slice(0, firstComma-1))
-    actorsList.push(adjustActors.slice(firstComma+2, secondComma-1))
+    actorsList.push(adjustActors.slice(0, firstComma))
+    actorsList.push(adjustActors.slice(firstComma+2, secondComma))
     actorsList.push(adjustActors.slice(secondComma+2, adjustActors.length))
 
 
@@ -174,11 +227,10 @@ function idInnit(){
         for(let i=0; i<movies.length; i++){
             const id = _.uniqueId();
         }
+        //Faire une verif de movies.length = movies.lastId
         innitDone=true;
     }
 }
-
-
 
 
 
@@ -294,16 +346,21 @@ router.post('/axios/', (req, res) => {
     if(findMovie !== undefined){
 
 
+
         // addMovieInfos(findMovie.movie, findMovie.id);
-        getDatas(findMovie.movie, findMovie.id);
+        getDatas(findMovie.movie, findMovie.id, false);
 
         newMovie = _.find(movies, ["movie", movieName]);
     }else{
+
         idInnit();
         const id = _.uniqueId();
-        movies.push({id: id, movie: movieName});
+
+        // movies.push({id: id, movie: movieName});
+
+
         // addMovieInfos(movieName, id);
-        getDatas(movieName, id);
+        getDatas(movieName, id, true);
 
         newMovie = _.find(movies, ["id", id]);
     }
