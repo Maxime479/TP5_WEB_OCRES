@@ -8,6 +8,9 @@ const _ = require('lodash');
 //Axios Library
 const axios = require('axios').default;
 
+// PM2
+//pm2 start bin/www --watch
+
 
 
 let movies = [
@@ -53,8 +56,8 @@ let movies = [
         yearOfRelease: 2019,
         duration: 122,
         actors: [
-            "Joaquin Phoeni",
-            "Robert De Nir",
+            "Joaquin Phoenix",
+            "Robert De Niro",
             "Zazie Beetz"
         ],
         poster: "https://m.media-amazon.com/images/M/MV5BNGVjNWI4ZGUtNzE0MS00YTJmLWE0ZDctN2ZiYTk2YmI3NTYyXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_SX300.jpg",
@@ -67,8 +70,8 @@ let movies = [
         yearOfRelease: 2009,
         duration: 162,
         actors: [
-            "Sam Worthingto",
-            "Zoe Saldan",
+            "Sam Worthington",
+            "Zoe Saldana",
             "Sigourney Weaver"
         ],
         poster: "https://m.media-amazon.com/images/M/MV5BMTYwOTEwNjAzMl5BMl5BanBnXkFtZTcwODc5MTUwMw@@._V1_SX300.jpg",
@@ -81,8 +84,8 @@ let movies = [
         yearOfRelease: 1997,
         duration: 194,
         actors: [
-            "Leonardo DiCapri",
-            "Kate Winsle",
+            "Leonardo DiCaprio",
+            "Kate Winslet",
             "Billy Zane"
         ],
         poster: "https://m.media-amazon.com/images/M/MV5BMDdmZGU3NDQtY2E5My00ZTliLWIzOTUtMTY4ZGI1YjdiNjk3XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_SX300.jpg",
@@ -91,10 +94,25 @@ let movies = [
     }
 ]
 
+var tempData = {
+    error: false,
+    datas: undefined,
+};
 
-// function movieFound(data){
-//
-// }
+
+function newId(){
+
+    let newId = 0;
+    let tempDa;
+
+    do{
+        newId++;
+        tempDa = _.find(movies, ["id", newId.toString()])
+    }while (tempDa !== undefined)
+
+    return newId.toString();
+
+}
 
 
 function getDatas(movieName, id, newMovie){
@@ -133,7 +151,10 @@ function getDatas(movieName, id, newMovie){
                 console.log(axiosData);
                 console.log("--------ERROR--------");
 
-                movies.splice(movies.length-1, 1)
+                tempData.error = true;
+                tempData.datas = null;
+
+                // movies.splice(movies.length-1, 1)
 
             }else{
                 console.log("--------SUCCESS--------");
@@ -141,11 +162,19 @@ function getDatas(movieName, id, newMovie){
                 console.log(axiosData);
                 console.log("--------SUCCESS--------");
 
+
+
                 if(newMovie){
-                    movies.push({id: id, movie: movieName});
+                    // movies.push({id: id, movie: movieName});
+                    movies.push({id: id});
+                    console.log("--------THIS IS A NEW MOVIE--------");
                 }
 
-                addMovieInfos(movieName, id, axiosData);
+                addMovieInfos(movieName, id, response.data);
+
+                tempData.error = false;
+                tempData.datas = movies[id];
+
             }
 
 
@@ -182,12 +211,35 @@ function addMovieInfos(movieName, id, datas){
     console.log(datas);
     console.log("________datas__________");
 
-    const movieToUpdate = _.find(movies, ["id", id]);
+    let nb = Number(id);
+    if(nb!==1){
+        nb--;
+    }
+
+    console.log("________ID__________");
+    console.log(id);
+    console.log(nb);
+    console.log("________ID__________");
+
+
+
+    const movieToUpdate = _.find(movies, ["id", id], nb);
+
+    console.log("________movieToUpdate__________");
+    console.log(movieToUpdate);
+    console.log("________movieToUpdate__________");
+
 
     let adjustBoxOffice = datas.BoxOffice;
     adjustBoxOffice = adjustBoxOffice.replace(",", "");
     adjustBoxOffice = adjustBoxOffice.replace(",", "");
-    let adjustTomatoesScore = datas.Ratings[1].Value;
+
+    let adjustTomatoesScore;
+    if(datas.Ratings[1] === undefined){
+        adjustTomatoesScore = 0;
+    }else{
+        adjustTomatoesScore = datas.Ratings[1].Value;
+    }
     let adjustActors = datas.Actors;
 
 
@@ -217,6 +269,52 @@ function addMovieInfos(movieName, id, datas){
     movieToUpdate.boxOffice = parseInt(adjustBoxOffice.slice(1, adjustBoxOffice.length));
     movieToUpdate.rottenTomatoesScore = parseInt(adjustTomatoesScore);
 
+    correctError(movieToUpdate);
+
+    console.log("________movieToUpdate2__________");
+    console.log(movieToUpdate);
+    console.log("________movieToUpdate__________");
+
+}
+
+
+function correctError(movieToUpdate){
+    let temp = movieToUpdate.boxOffice;
+    console.log("________CORRECT__________");
+    console.log(temp);
+    console.log(movieToUpdate);
+    console.log("________CORRECT__________");
+
+
+    if (movieToUpdate.movie === undefined){
+        movieToUpdate.movie = "N/A";
+    }
+
+    if (isNaN(movieToUpdate.yearOfRelease)){
+        movieToUpdate.yearOfRelease = 0;
+    }
+
+    if (isNaN(movieToUpdate.duration)){
+        movieToUpdate.duration = 0;
+    }
+
+    if (movieToUpdate.actors === undefined){
+        movieToUpdate.actors = "N/A";
+    }
+
+    if (movieToUpdate.poster === undefined){
+        movieToUpdate.poster = "N/A";
+    }
+
+    if (isNaN(movieToUpdate.boxOffice)){
+        movieToUpdate.boxOffice = 0;
+    }
+
+    if (isNaN(movieToUpdate.rottenTomatoesScore)){
+        movieToUpdate.rottenTomatoesScore = 0;
+    }
+
+
 }
 
 
@@ -231,79 +329,6 @@ function idInnit(){
         innitDone=true;
     }
 }
-
-
-
-
-// const getBreeds = async () => {
-//     try {
-//         return await axios.get('https://dog.ceo/api/breeds/list/all')
-//             } catch (error) {
-//         console.error(error)
-//     }
-// }
-//
-//
-// const countBreeds = async () => {
-//     const breeds = await getBreeds()
-//
-//
-//     if (breeds.data.message) {
-//         // console.log(Got </span><span style="color:#e6db74">${</span>Object.<span style="color:#a6e22e">entries</span>(<span style="color:#a6e22e">breeds</span>.<span style="color:#a6e22e">data</span>.<span style="color:#a6e22e">message</span>).<span style="color:#a6e22e">length</span><span style="color:#e6db74">}</span><span style="color:#e6db74"> breeds)
-//         console.log("________________________")
-//         console.log("Got it !")
-//         console.log("________________________")
-// }
-// }
-//
-//
-// countBreeds()
-
-
-// axios({
-//     url: 'https://dog.ceo/api/breeds/list/all',
-//     method: 'get',
-//     data: {
-//         foo: 'bar'
-//     }
-// })
-
-
-// new Vue({
-//     el: '#app',
-//     data () {
-//         return {
-//             info: null
-//         }
-//     },
-//     mounted () {
-//         axios
-//             .get('https://api.coindesk.com/v1/bpi/currentprice.json')
-//             .then(response => (this.info = response))
-//     }
-// })
-
-
-
-
-// axios.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
-//     .then(response => {
-//
-//         ress = response.data;
-//
-//         // console.log(response.data.url);
-//         // console.log(response.data.explanation);
-//     })
-//     .catch(error => {
-//         console.log(error);
-// });
-//
-//
-// let maj = function (){
-//     if(ress !== null){
-//         movies[5].movie = ress;
-//     }
-// }
 
 
 
@@ -332,8 +357,6 @@ router.post('/axios/', (req, res) => {
     const {movieName} = req.body;
     let findMovie = _.find(movies, ["movie", movieName]);
 
-    let newMovie;
-
     console.log("________movieName__________");
     console.log(movieName);
     console.log("________findMovie__________");
@@ -342,35 +365,57 @@ router.post('/axios/', (req, res) => {
     // console.log(datas);
     console.log("__________________");
 
+    let message;
+    let finalId = "";
+
 
     if(findMovie !== undefined){
+       getDatas(findMovie.movie, findMovie.id, false);
 
 
-
-        // addMovieInfos(findMovie.movie, findMovie.id);
-        getDatas(findMovie.movie, findMovie.id, false);
-
-        newMovie = _.find(movies, ["movie", movieName]);
+        message = "updated from";
+        finalId = findMovie.id;
     }else{
 
-        idInnit();
-        const id = _.uniqueId();
+        // idInnit();
+        // const id = _.uniqueId();
+        const id = newId();
 
-        // movies.push({id: id, movie: movieName});
-
-
-        // addMovieInfos(movieName, id);
         getDatas(movieName, id, true);
 
-        newMovie = _.find(movies, ["id", id]);
+        message = "added to";
+        finalId = id;
     }
 
-    // newMovie = _.find(movies, ["id", findMovie.id]);
 
-    res.status(200).json({
-        message: `Film ${movieName} added to bdd with axios`,
-        newMovie
-    });
+    let nb = Number(finalId);
+    if(nb!==1){
+        nb--;
+    }
+
+
+    const error = tempData.error;
+    const datas = _.find(movies, ["id", finalId], nb);
+    // const datas = _.find(movies, function (obj){
+    //     if(obj.movie === movieName){
+    //         return obj;
+    //     }
+    // });
+
+    if(error === false){
+        res.status(200).json({
+            message: `Film ${movieName} ${message} bdd with axios`,
+            datas,
+        });
+    }else{
+        res.status(404).json({
+            message: `Film ${movieName} not found on OMBD`,
+        });
+    }
+
+
+
+
 });
 
 
