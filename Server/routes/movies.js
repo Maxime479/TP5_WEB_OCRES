@@ -280,10 +280,10 @@ function addMovieInfos(movieName, id, datas){
 
 function correctError(movieToUpdate){
     let temp = movieToUpdate.boxOffice;
-    console.log("________CORRECT__________");
-    console.log(temp);
-    console.log(movieToUpdate);
-    console.log("________CORRECT__________");
+    // console.log("________CORRECT__________");
+    // console.log(temp);
+    // console.log(movieToUpdate);
+    // console.log("________CORRECT__________");
 
 
     if (movieToUpdate.movie === undefined){
@@ -351,11 +351,17 @@ router.get('/:id', (req, res) => {
     });
 });
 
+function capitalizeFirstLetter(movieName) {
+    return movieName.charAt(0).toUpperCase() + movieName.slice(1);
+}
+
 
 // POST localhost:3000/movies/axios/:movieName Add Movie and infos with uniqueId with AXIOS
 router.post('/axios/', (req, res) => {
     const {movieName} = req.body;
     let findMovie = _.find(movies, ["movie", movieName]);
+    const capMovieName = capitalizeFirstLetter(movieName);
+    let findMovieUpperCase = _.find(movies, ["movie", capMovieName]);
 
     console.log("________movieName__________");
     console.log(movieName);
@@ -369,7 +375,7 @@ router.post('/axios/', (req, res) => {
     let finalId = "";
 
 
-    if(findMovie !== undefined){
+    if((findMovie !== undefined) || (findMovieUpperCase !== undefined)){
        getDatas(findMovie.movie, findMovie.id, false);
 
 
