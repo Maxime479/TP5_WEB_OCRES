@@ -149,7 +149,7 @@ function getDatas(movieName, id, newMovie){
                 console.log("--------ERROR--------");
                 console.log("Film Not Found");
                 console.log(axiosData);
-                console.log("--------ERROR--------");
+                console.log("___________________________________");
 
                 tempData.error = true;
                 tempData.datas = null;
@@ -160,15 +160,19 @@ function getDatas(movieName, id, newMovie){
                 console.log("--------SUCCESS--------");
                 console.log("Film Found");
                 console.log(axiosData);
-                console.log("--------SUCCESS--------");
-
+                console.log("___________________________________");
 
 
                 if(newMovie){
+                    tempData.newMovie = true;
                     // movies.push({id: id, movie: movieName});
                     movies.push({id: id});
                     console.log("--------THIS IS A NEW MOVIE--------");
+                }else{
+                    tempData.newMovie = false;
+                    console.log("--------THIS IS NOT A NEW MOVIE--------");
                 }
+
 
                 addMovieInfos(movieName, id, response.data);
 
@@ -177,57 +181,33 @@ function getDatas(movieName, id, newMovie){
 
             }
 
-
         })
-        // .then(data => {
-        //     console.log("--------VA--------");
-        //     console.log(data.data);
-        //     console.log("--------VA--------");
-        //
-        //     // datas.push(data.data);
-        // })
-        // .catch(function (error) {
-        //     console.log(error);
-        //     // this.datas =  '#ERROR#';
-        // });
-
-    // console.log("--------AFTER--------");
-    // console.log(axiosData);
-    // console.log("--------AFTER--------");
-    // return axiosData;
 
 }
 
 function addMovieInfos(movieName, id, datas){
 
-    // let datas = getDatas(movieName);
-    // let datas = axiosData;
-
-    // console.log("________movieName__________");
-    // console.log(movieName);
-    // console.log("________id__________");
-    // console.log(id);
-    console.log("________datas__________");
+    console.log("________Data get from OMBD__________");
     console.log(datas);
-    console.log("________datas__________");
+    console.log("___________________________________");
 
     let nb = Number(id);
     if(nb!==1){
         nb--;
     }
 
-    console.log("________ID__________");
-    console.log(id);
-    console.log(nb);
-    console.log("________ID__________");
+    // console.log("________ID__________");
+    // console.log(id);
+    // console.log(nb);
+    // console.log("________ID__________");
 
 
 
     const movieToUpdate = _.find(movies, ["id", id], nb);
 
-    console.log("________movieToUpdate__________");
-    console.log(movieToUpdate);
-    console.log("________movieToUpdate__________");
+    // console.log("________movieToUpdate__________");
+    // console.log(movieToUpdate);
+    // console.log("___________________________________");
 
 
     let adjustBoxOffice = datas.BoxOffice;
@@ -271,12 +251,11 @@ function addMovieInfos(movieName, id, datas){
 
     correctError(movieToUpdate);
 
-    console.log("________movieToUpdate2__________");
-    console.log(movieToUpdate);
-    console.log("________movieToUpdate__________");
+    // console.log("________movieToUpdateCorrect__________");
+    // console.log(movieToUpdate);
+    // console.log("______________________________________");
 
 }
-
 
 function correctError(movieToUpdate){
     let temp = movieToUpdate.boxOffice;
@@ -317,19 +296,9 @@ function correctError(movieToUpdate){
 
 }
 
-
-
-let innitDone = false;
-function idInnit(){
-    if (innitDone===false){
-        for(let i=0; i<movies.length; i++){
-            const id = _.uniqueId();
-        }
-        //Faire une verif de movies.length = movies.lastId
-        innitDone=true;
-    }
+function capitalizeFirstLetter(movieName) {
+    return movieName.charAt(0).toUpperCase() + movieName.slice(1);
 }
-
 
 
 
@@ -351,9 +320,9 @@ router.get('/:id', (req, res) => {
     });
 });
 
-function capitalizeFirstLetter(movieName) {
-    return movieName.charAt(0).toUpperCase() + movieName.slice(1);
-}
+
+
+
 
 
 // POST localhost:3000/movies/axios/:movieName Add Movie and infos with uniqueId with AXIOS
@@ -363,30 +332,21 @@ router.post('/axios/', (req, res) => {
     const capMovieName = capitalizeFirstLetter(movieName);
     let findMovieUpperCase = _.find(movies, ["movie", capMovieName]);
 
-    console.log("________movieName__________");
+    console.log("________Search Movie Name__________");
     console.log(movieName);
-    console.log("________findMovie__________");
-    console.log(findMovie);
-    // console.log("________datas__________");
-    // console.log(datas);
-    console.log("__________________");
+    console.log("___________________________________");
 
     let message;
     let finalId = "";
 
 
     if((findMovie !== undefined) || (findMovieUpperCase !== undefined)){
-       getDatas(findMovie.movie, findMovie.id, false);
-
+        getDatas(findMovie.movie, findMovie.id, false);
 
         message = "updated from";
         finalId = findMovie.id;
     }else{
-
-        // idInnit();
-        // const id = _.uniqueId();
         const id = newId();
-
         getDatas(movieName, id, true);
 
         message = "added to";
@@ -399,9 +359,16 @@ router.post('/axios/', (req, res) => {
         nb--;
     }
 
+    // console.log("________ID__________");
+    // console.log(finalId);
+    // console.log(nb);
+    // console.log("___________________________________");
+
+
 
     const error = tempData.error;
-    const datas = _.find(movies, ["id", finalId], nb);
+    let data = _.find(movies, {id: finalId}, nb);
+
     // const datas = _.find(movies, function (obj){
     //     if(obj.movie === movieName){
     //         return obj;
@@ -411,7 +378,7 @@ router.post('/axios/', (req, res) => {
     if(error === false){
         res.status(200).json({
             message: `Film ${movieName} ${message} bdd with axios`,
-            datas,
+            data,
         });
     }else{
         res.status(404).json({
@@ -429,8 +396,7 @@ router.post('/axios/', (req, res) => {
 // PUT localhost:3000/movies/ -- Ajoute un film via son nom
 router.put('/', (req, res) => {
     const { movie } = req.body;
-    idInnit();
-    const id = _.uniqueId();
+    const id = newId();
 
     movies.push({id, movie});
 
@@ -447,12 +413,14 @@ router.post('/:id', (req, res) => {
     const {movie} = req.body;
     const movieToUpdate = _.find(movies, ["id", id]);
 
+    const oldName = movieToUpdate.movie;
+
     // movieToUpdate.movie = movie;
     movieToUpdate.movie = movie;
 
     res.json({
-        message: `Movie's name, with id (${id}), updated to ${movie}`,
-        movie
+        message: `Movie's name (${oldName}), with id (${id}), updated to ${movie}`,
+        movieToUpdate
     });
 
 });
