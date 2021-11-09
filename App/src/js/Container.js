@@ -24,30 +24,48 @@ export default class Container extends React.Component{
     };
 
     // fetching GET routes from server.js
-    callBackendAPI = async () => {
+    callAsyncAPI = async () => {
         const response = await fetch('/movies');
         const body = await response.json();
 
         if (response.status !== 200) {
             throw Error(body.message)
+            // alert("Movie Not Found")
         }
-
 
         return body;
     };
 
-    //Getting Datas
-    componentDidMount() {
-        this.callBackendAPI()
+    callAPI = () => {
+        this.callAsyncAPI()
             .then(data => {
                 // console.log("--------VA--------")
                 // console.log(data)
                 this.setState({ moviesData : data.movies })
             })
             .catch(err => console.log(err));
+
     }
 
+    //Getting Datas
+    componentDidMount() {
 
+        this.callAPI();
+
+        // this.callBackendAPI()
+        //     .then(data => {
+        //         // console.log("--------VA--------")
+        //         // console.log(data)
+        //         this.setState({ moviesData : data.movies })
+        //     })
+        //     .catch(err => console.log(err));
+    }
+
+    componentDidUpdate(prevState) {
+        if(prevState !== this.state){
+            this.callAPI();
+        }
+    }
 
 
     handleChange(event) {
@@ -61,7 +79,7 @@ export default class Container extends React.Component{
         // alert('Le nom a été soumis : ' + this.state.searchMovie);
 
         //Page refresh after uploading data on server
-        window.location.reload();
+        // window.location.reload();
 
         this.addMovieOnDb(this.state.searchMovie);
 

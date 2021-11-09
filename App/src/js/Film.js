@@ -12,16 +12,22 @@ export default class Film extends React.Component{
 
     showActors = (actors) => {
 
+        if (actors === undefined){
+            return "N/A";
+        }
+
+        let stringActors = actors.toString();
+
+        if((stringActors.includes("Unkn")) || (stringActors.includes("N/A"))){
+            return "N/A";
+        }
+
+
         let i = 1;
         let arra = []
         arra = actors;
         const len = arra.length;
 
-        let stringActors = actors.toString();
-
-        if(stringActors.includes("Unkn")){
-            return "Unk";
-        }
 
         return actors.map((act) => {
 
@@ -34,13 +40,17 @@ export default class Film extends React.Component{
             }
 
         });
+
     };
 
     showTime = (time) => {
         let hours = Math.floor(time /60);
         let minutes = time % 60
 
-        if(minutes)
+        if(minutes < 10){
+            return hours + "h0" + minutes
+
+        }
 
             return hours + "h" + minutes
     }
@@ -56,7 +66,7 @@ export default class Film extends React.Component{
 
 
         if(length === 1){
-            return "Unk";
+            return "N/A";
         }
 
         switch (addDigit){
@@ -81,6 +91,16 @@ export default class Film extends React.Component{
 
 
         return newMoney + " $";
+    }
+
+    showScore = (score) => {
+
+        if(score === 0){
+            return "N/A";
+        }
+
+        return score + "%";
+
     }
 
 
@@ -116,7 +136,7 @@ export default class Film extends React.Component{
                         <a className="actors"><span className="br">Actors : </span>{this.showActors(newMovie.actors)}</a>
 
                         <div className="bottom">
-                            <a className="score">&#127813; {newMovie.rottenTomatoesScore}%</a>
+                            <a className="score">&#127813; {this.showScore(newMovie.rottenTomatoesScore)}</a>
                             <a className="boxOffice"><span className="br">Box Office : </span>{this.showMoney(newMovie.boxOffice)}</a>
                         </div>
 

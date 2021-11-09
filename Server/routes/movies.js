@@ -211,8 +211,12 @@ function addMovieInfos(movieName, id, datas){
 
 
     let adjustBoxOffice = datas.BoxOffice;
-    adjustBoxOffice = adjustBoxOffice.replace(",", "");
-    adjustBoxOffice = adjustBoxOffice.replace(",", "");
+
+    if(adjustBoxOffice !== undefined){
+        adjustBoxOffice = adjustBoxOffice.replace(",", "");
+        adjustBoxOffice = adjustBoxOffice.replace(",", "");
+        adjustBoxOffice = parseInt(adjustBoxOffice);
+    }
 
     let adjustTomatoesScore;
     if(datas.Ratings[1] === undefined){
@@ -220,23 +224,33 @@ function addMovieInfos(movieName, id, datas){
     }else{
         adjustTomatoesScore = datas.Ratings[1].Value;
     }
+
+
     let adjustActors = datas.Actors;
-
-
-    let firstComma = adjustActors.indexOf(",");
-    let secondComma = adjustActors.indexOf(",", firstComma+1);
-
     let actorsList = [];
 
+    if(adjustActors!== undefined){
+        let firstComma = adjustActors.indexOf(",");
+        let secondComma = adjustActors.indexOf(",", firstComma+1);
 
-    // console.log("________Comma__________");
-    // console.log(firstComma);
-    // console.log(secondComma);
-    // console.log("________Comma__________");
 
-    actorsList.push(adjustActors.slice(0, firstComma))
-    actorsList.push(adjustActors.slice(firstComma+2, secondComma))
-    actorsList.push(adjustActors.slice(secondComma+2, adjustActors.length))
+        // console.log("________Comma__________");
+        // console.log(firstComma);
+        // console.log(secondComma);
+        // console.log("________Comma__________");
+
+        actorsList.push(adjustActors.slice(0, firstComma))
+        actorsList.push(adjustActors.slice(firstComma+2, secondComma))
+        actorsList.push(adjustActors.slice(secondComma+2, adjustActors.length))
+
+
+    }else{
+        actorsList = undefined;
+    }
+
+
+
+
 
 
     movieToUpdate.movie = datas.Title;
@@ -246,7 +260,8 @@ function addMovieInfos(movieName, id, datas){
 
     movieToUpdate.actors = actorsList;
     movieToUpdate.poster = datas.Poster;
-    movieToUpdate.boxOffice = parseInt(adjustBoxOffice.slice(1, adjustBoxOffice.length));
+    // movieToUpdate.boxOffice = parseInt(adjustBoxOffice.slice(1, adjustBoxOffice.length));
+    movieToUpdate.boxOffice = adjustBoxOffice;
     movieToUpdate.rottenTomatoesScore = parseInt(adjustTomatoesScore);
 
     correctError(movieToUpdate);
@@ -433,8 +448,13 @@ router.delete('/:id', (req, res) => {
 
     _.remove(movies, ["id", id]);
 
+    let movieName = movie.movie;
+    if(movieName === undefined){
+        movieName = "N/A";
+    }
+
     res.json({
-        message: `Movie ${movie.movie} deleted successfully`
+        message: `Movie ${movieName} deleted successfully`
     });
 });
 
