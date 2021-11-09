@@ -317,29 +317,6 @@ function capitalizeFirstLetter(movieName) {
 
 
 
-
-// GET localhost:3000/movies -- Affiche tout les films
-router.get('/', (req, res) => {
-    res.status(200).json({movies});
-});
-
-
-// GET localhost:3000/movies/:id -- Affiche un film via son id
-router.get('/:id', (req, res) => {
-    const {id} = req.params;
-    const movie = _.find(movies, ["id", id]);
-
-    res.status(200).json({
-        message: 'Film found!',
-        movie
-    });
-});
-
-
-
-
-
-
 // POST localhost:3000/movies/axios/:movieName Add Movie and infos with uniqueId with AXIOS
 router.post('/axios/', (req, res) => {
     const {movieName} = req.body;
@@ -408,6 +385,27 @@ router.post('/axios/', (req, res) => {
 
 
 
+
+
+
+// GET localhost:3000/movies -- Affiche tout les films
+router.get('/', (req, res) => {
+    res.status(200).json({movies});
+});
+
+
+// GET localhost:3000/movies/:id -- Affiche un film via son id
+router.get('/:id', (req, res) => {
+    const {id} = req.params;
+    const movie = _.find(movies, ["id", id]);
+
+    res.status(200).json({
+        message: 'Film found!',
+        movie
+    });
+});
+
+
 // PUT localhost:3000/movies/ -- Ajoute un film via son nom
 router.put('/', (req, res) => {
     const { movie } = req.body;
@@ -457,7 +455,6 @@ router.delete('/:id', (req, res) => {
         message: `Movie ${movieName} deleted successfully`
     });
 });
-
 
 
 module.exports = router;

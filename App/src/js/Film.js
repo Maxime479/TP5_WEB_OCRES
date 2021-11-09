@@ -104,6 +104,26 @@ export default class Film extends React.Component{
     }
 
 
+    showPoster = (poster) => {
+
+        let link;
+        let line;
+
+        if((poster === undefined) || (poster.includes("N/A"))){
+            link = "https://media-exp1.licdn.com/dms/image/C560BAQGQP6YcZyZKTA/company-logo_200_200/0/1525452789390?e=2159024400&v=beta&t=iB0ldPkxW8MIEgJmpL3EFav3trh7zZg8_Go1EyLm89s";
+        }else{
+            link = poster;
+        }
+
+
+        line = 'url("' + link + '")';
+
+        return line;
+
+
+    }
+
+
 
 
     render() {
@@ -113,7 +133,7 @@ export default class Film extends React.Component{
 
         return(
 
-            <div className="propFilm" style={{backgroundImage: 'url("' + newMovie.poster + '")'}}>
+            <div className="propFilm" style={{backgroundImage: this.showPoster(newMovie.poster)}}>
 
                 <div className="backgroundPoster">
 
